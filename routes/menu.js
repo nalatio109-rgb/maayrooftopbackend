@@ -45,7 +45,7 @@ router.post('/', upload.single('image'), async (req, res) => {
     // Determine the image URL
     let img = '/images/matchalatte.png';
     if (req.file) {
-      img = `http://localhost:5000/uploads/${req.file.filename}`;
+      img = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
     } else if (req.body.img) {
       img = req.body.img; // Fallback to raw string if provided
     }
@@ -84,7 +84,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
     }
 
     if (req.file) {
-      updateData.img = `http://localhost:5000/uploads/${req.file.filename}`;
+      updateData.img = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
     } else if (req.body.img) {
       updateData.img = req.body.img;
     }
