@@ -11,15 +11,7 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir);
 }
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  }
-});
+const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 // @route   GET /api/menu
@@ -45,7 +37,8 @@ router.post('/', upload.single('image'), async (req, res) => {
     // Determine the image URL
     let img = '/images/matchalatte.png';
     if (req.file) {
-      img = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+      const b64 = Buffer.from(req.file.buffer).toString('base64');
+      img = `data:${req.file.mimetype};base64,${b64}`;
     } else if (req.body.img) {
       img = req.body.img; // Fallback to raw string if provided
     }
@@ -84,7 +77,8 @@ router.put('/:id', upload.single('image'), async (req, res) => {
     }
 
     if (req.file) {
-      updateData.img = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+      const b64 = Buffer.from(req.file.buffer).toString('base64');
+      updateData.img = `data:${req.file.mimetype};base64,${b64}`;
     } else if (req.body.img) {
       updateData.img = req.body.img;
     }
